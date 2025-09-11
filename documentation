@@ -1,0 +1,254 @@
+---------------------------NEW DOCUMENTATION begin
+1)per il preprocessing si lancia python batch_preprocess_faces_fgnet.py oppure batch_preprocess_faces_morph.py oppure batch_preprocess_faces_utkface.py oppure batch_preprocess_faces_clap2016.py e le immagini preprocessate normalizzate saranno messe dentro la cartella image_preprocessed
+
+2) si lancia python datasets/morph.py oppure datasets/fgnet.py oppure datasets/utkface.py oppure datasets/clap2016.py  che è lo script che genera i landmark completi e ridotti a partire dalle immagini preprocessate! cosa fa ? Per ogni immagine in images_preprocessed, estrae:
+
+I 68 landmark facciali completi
+Un sottoinsieme ridotto di landmark chiave (es. occhi, naso, bocca)
+E salva due file .pts per ciascuna immagine:
+In points/ → 68 landmark
+In points_reduced/ → landmark selezionati per analisi (es. aging)
+3) si lancia python datasets/draw_landmarks_morph.py o datasets/draw_landmarks_fgnet.py o draw_landmarks_utkface.py  o datasets/draw_landmarks_clap2016.py per visualizzare i landmark
+questo script ha come output images/Train/landmarked/	📸 Immagini con 68 landmark (rossi)	Se esiste points/<nome>.pts
+images/Train/landmarked_reduced/	📸 Immagini con landmark ridotti (blu)	Se esiste points_reduced/<nome>.pts
+
+4) python utils/segment_patches_morph.py o utils/segment_patches_fgnet.py 🔍 o  segment_patches_utkface.py o utils/segment_patches_clap2016.py Questo script ha lo scopo di analizzare immagini faciali preprocessate, associare i keypoint facciali a delle patch regolari 6×6 sovrapposte all’immagine, e salvare i risultati sia come CSV che come immagine visuale con overlay delle patch e landmark. dentro la cartella Train/images_segmented
+esso carica  i keypoint (landmark ridotti) da points_dir = "datasets/data/MORPH/points_reduced" o points_dir = "datasets/data/FGNET/points_reduced" etc
+5) dopo di che si lancia python main_morph.py oppure main_fgnet.py oppure main_utkface.py oppure python main_clap2016.py che chiamano la versione  graph_constructor_morph.py oppure graph_constructor_fgnet.py oppure graph_constructor_utkface.py o graph_constructor_clap2016.py per creare il grafo per ogni immagine e fa queste azioni 
+Step	Cosa fa	Script  
+1️⃣	Carica immagine + patch CSV	image_path, csv_path	✅
+2️⃣	Costruisce grafo base + RW	construct_initial_graph	✅
+3️⃣	Salva graph_initial.pt, graph_rw.pt		✅
+4️⃣	Applica Latent Relation Capturer (LRC)	LatentRelationCapturer	✅
+5️⃣	Salva 12 grafi LRC (graph_lrc_*.pt)		✅ (ATTENZIONE ridotti ad 8 grafi per utkface)
+6️⃣	Estrae deep feature via ResGCN	extract_deep_features	✅
+7️⃣	Salva deep_features.pt
+node_features.pt	Embedding visivo 512D per ogni patch (nodo)
+edge_features.pt	(Opzionale) Media degli embedding tra coppie connesse
+graph_initial.pt	Grafo iniziale basato su similarità
+graph_rw.pt	Grafo dopo Random Walk
+graph_lrc_*.pt (12 file)	ATTENZIONE Ridotti ad 8 grafi per utkface e clap2016 . Grafi connessi via multi-head attention
+deep_features.pt	Feature finali da ResGCN
+✅ Conclusione
+✔ Sì, il sistema genera anche gli embedding delle patch (nodi)
+✔ Sono salvati in node_features.pt nella cartella dell’immagine
+Sono nella cartella embeddings o embeddings_FGNET o embeddings_utkface o embeddings_clap2016
+
+5a) PYTHONPATH=. python utils/check_embeddings_full.py   --root embeddings_morph   --dataset MORPH   --check-shape --split both
+fa il sanity check delle cartelle di mebeddings
+oppure
+PYTHONPATH=. python utils/check_embeddings_full.py \
+  --root embeddings_morph \
+  --dataset MORPH \
+  --split both \
+  --check-shape \
+  --min-lrc 8
+
+6) adesso va lanciato python train_lra_gnn.py  --dataset MORPH oppure FGNET oppure UTKFACE oppure CLAP2016
+così : python train_lra_gnn.py --dataset FGNET
+il comando da dare su mac con gpu è questo:
+PYTORCH_ENABLE_MPS_FALLBACK=1 python train_lra_gnn.py --dataset 
+ FGNET --no_force_ablation (oppure MORPH oppure UTKFACE oppure CLAP2016) --no_save_embeddings
+ (no_save_embeddings deve essere specificata per salvare gli embeddings per val con lo script successivo. altrimenti succede una data leakage??non vero)
+ 6-bis) PYTORCH_ENABLE_MPS_FALLBACK=1 python train_lra_gnn.py \
+  --dataset MORPH --no_force_ablation --save_flat
+  cè la opzione per salvare flat 
+ 6-tris) python train_lra_gnn.py --dataset FGNET --no_force_ablation (Comando “standard” (rigenera graph features nelle cartelle dei sample))
+ python train_lra_gnn.py --dataset FGNET --no_force_ablation --save_flat (Se vuoi anche i flat 512D (un file <ID>.pt per immagine nello split))
+ ----NON ESEGUIRE 6a) nel caso no ablation
+ 6a) python generate_val_embeddings.py 
+    PYTHONPATH=. python utils/generate_val_embeddings.py \
+  --dataset MORPH \
+  --checkpoint checkpoints_ablation/morph/lrc_no_dfe/best_lra_gnn_morph.pth \
+  --embeddings_dir embeddings_ablation_morph_lrc_no_dfe
+
+    serve per evitare il data leakage con il train precedente nel salvataggio degli embedddings per val
+    Questo è valido per MORPH. Va adattato per gli altri dataset.
+ ----NON ESEGUIRE 6a) nel caso no ablation
+7) viene poi lanciato il classificatore python models/train_classifier.py --dataset FGNET (o MORPH o UTKFACE o CLAPS2016)
+o meglio   python models/train_classifier_new.py --dataset FGNET
+8) infine viene lanciato PYTORCH_ENABLE_MPS_FALLBACK=1 python train_rl_agent.py --dataset FGNET (oppure MORPH oppure UTKFACE oppure CLAP2016)
+ 8a) PYTORCH_ENABLE_MPS_FALLBACK=1  train_rl_agent_no_ablation.py --dataset UTKFACE
+ questa versione elimina presunti leakages del training rl agent e delle valuate e in particolare modificato al momento per UTKFACE utilizzando
+train_rl_flat.py e progressive_rl_no_ablation.py e evaluate_rl_agent_utkface.py 
+8b)  PYTORCH_ENABLE_MPS_FALLBACK=1 python train_rl_agent_no_ablation_x_mae.py --dataset FGNET
+8c) python training/train_prl_morph.py   --train-dir embeddings_morph/train                          --val-dir   embeddings_morph/val   --run-name  MORPH_prl   --epochs 15   --batch-size 64   --max-steps 100   --use-classifier-start   --classifier-ckpt                             checkpoints/MORPH/classifier.pth
+questo train prevede delle modifiche al modello e agli embeddings ed il passaggio ad un modello con parecchi milioni di parametrizzata
+(per ora solo su MORPH)
+9) per la evaluation : PYTORCH_ENABLE_MPS_FALLBACK=1 python evaluate_rl_agent.py --dataset FGNET (oppure MORPH oppure UTKFACE o CLAP2016)
+9a) PYTORCH_ENABLE_MPS_FALLBACK=1 python evaluate_rl_agent_no_ablation_fgnet.py --dataset FGNET
+
+9b) python evaluate_rl_agent_no_ablation_morph.py \
+  --dataset MORPH \
+  --quick-n 200 \
+  --top-k 5 \
+  --quick-mode stratified \
+  --quick-seed 123
+  (utile per scegliere il miglior modello da valutare )
+  oppure 
+  python evaluate_rl_agent_no_ablation_morph.py \
+  --dataset MORPH \
+  --quick-n 200 \
+  --top-k -1 \
+  --quick-mode stratified \
+  --quick-seed 42 \
+  --eval-only
+  (per evidenziare il valore del AgeEstimator ad ogni best model)
+  9c) python evaluate_rl_last15.py --dataset FGNET     # oppure MORPH / UTKFACE / CLAP2016
+  1.	prende gli ultimi 15 checkpoint best_agent_*.pth da checkpoints/<DATASET>_clean514/
+	2.	li valuta uno per uno sull’intero validation set e per ognuno stampa MAE, CS@5, ε-error (e decade accuracy se disponibile)
+	3.	sceglie il migliore per MAE, salva un CSV riepilogo, crea BEST_SELECTED.json e copia il best in best_agent_SELECTED.pth
+	4.	confronta il best RL con la baseline del classifier (decade accuracy + età “soft” da midpoint)
+	5.	genera gli artefatti per il best: CSV per-sample, tabella comparativa (CSV+PNG), confusion matrix, classification report e curva di accuracy smussata
+  9d)PYTORCH_ENABLE_MPS_FALLBACK=1 \
+python evaluate_rl_last15_x_mae.py --dataset FGNET --epsilon-eval 0.65
+10) dummy script
+
+SCRIPT PER ABLATION
+
+Esperimento             | LRC  | DFE  | Comando da eseguire
+------------------------|------|------|--------|-----------------------------------------------
+Solo GCN (baseline)     | ❌   | ❌   | ablation_train_lra_gnn.py MORPH  
+GCN + LRC               | ✅   | ❌   | ablation_train_lra_gnn.py  MORPH --enable_lrc 
+GCN + DFE               | ❌   | ✅   | ablation_train_lra_gnn.py MORPH --enable_dfe
+GCN + LRC + DFE         | ✅   | ✅   | ablation_train_lra_gnn.py MORPH --enable_lrc --enable_dfe
+
+
+Queste le possibili opzioni di lancio comando ed i relativi script (ad es. per MORPH) :
+0.0) python prepare_ablation_dirs_morph.py si svuotano gli attuali embeddings (prima di eseguire la ri-generazione) 
+
+0.1) si genera lo script che genera tutti gli embeddings per ablation (MORPH)
+python generate_ablation_embeddings_morph.py
+
+# Solo DeepGCN (baseline, niente LRC né DFE) 
+1)python ablation_train_lra_gnn.py --dataset MORPH
+
+# GCN + LRC
+2)python ablation_train_lra_gnn.py --dataset MORPH --enable_lrc
+
+# GCN + DFE
+3)python ablation_train_lra_gnn.py --dataset MORPH --enable_dfe
+
+# GCN + LRC + DFE
+4) python ablation_train_lra_gnn.py --dataset MORPH --enable_lrc --enable_dfe
+QUESTI COMANDI DI MAKE EMBEDDING NON SONO PIU'' UTILIZZATI!
+ATTENZIONE : USARE IL COMANDO TIPO seguente --->
+PYTORCH_ENABLE_MPS_FALLBACK=1 python ablation_train_lra_gnn.py --dataset MORPH --enable_lrc (--enable_dfe)
+Questo comando salva i relativi embeddings in embeddings_ablation_"datasetname"_"options"
+
+4a)  PYTORCH_ENABLE_MPS_FALLBACK=1 PYTHONPATH=. python utils/make_val_embeddings_lrc_only.py \
+  --val_root embeddings_ablation_morph_lrc_no_dfe/val \
+  --checkpoint checkpoints_ablation/morph/lrc_no_dfe/best_lra_gnn_morph.pth \
+  --dataset MORPH
+
+    serve per evitare il data leakage con il train precedente nel salvataggio degli embedddings per val
+    Questo è valido per MORPH. Va adattato per gli altri dataset.
+    LRC-only
+4b)  PYTORCH_ENABLE_MPS_FALLBACK=1 PYTHONPATH=. python utils/make_val_embeddings_dfe_only.py \
+  --val_root embeddings_ablation_morph_no_lrc_dfe/val \
+  --checkpoint checkpoints_ablation/morph/no_lrc_dfe/best_lra_gnn_morph.pth \
+  --dataset MORPH
+
+    serve per evitare il data leakage con il train precedente nel salvataggio degli embedddings per val
+    Questo è valido per MORPH. Va adattato per gli altri dataset.
+    LRC-only
+    IN CASO MANCHINO GLI EMBEDDINGS DEL TRAIN LANCIA I DUE SEGUENTI SCRIPT
+    (ATTENZIONE QuESTO PUò CREARE INCOMPATIBILITà CON GLI EMBEDDINGS CREATI DA SAVE_EMBEDDINGS)
+    SI CONSIGLIA DI NON USARE !)
+    4c) PYTORCH_ENABLE_MPS_FALLBACK=1 PYTHONPATH=. python utils/make_train_embedding_lrc_only.py \
+  --train_root embeddings_ablation_utkface_lrc_no_dfe/train \
+  --checkpoint checkpoints_ablation/utkface/lrc_no_dfe/best_lra_gnn_utkface.pth \
+  --dataset UTKFACE
+   4d) PYTORCH_ENABLE_MPS_FALLBACK=1 PYTHONPATH=.  python utils/make_train_embeddings_dfe_only.py \
+  --train_root embeddings_ablation_utkface_no_lrc_dfe/train \
+  --dataset UTKFACE \
+  --overwrite
+4e) questo script fa un 	Test non distruttivo (scrive deep_features_from_rw.pt): 
+python utils/rebuild_dfe_features_from_rw.py \
+  --root embeddings_ablation_morph_lrc_dfe \
+  --num-layers 4 \
+  --only-missing
+4f) questo script Rigenerazione definitiva (sovrascrive deep_features.pt, fa backup automatico delle versioni a 8 head):
+python utils/rebuild_dfe_features_from_rw.py \
+  --root embeddings_ablation_morph_lrc_dfe \
+  --num-layers 4 \
+  --overwrite
+  --device auto
+  NOTA Non devi cancellare a mano i vecchi deep_features.pt: lo script gestisce backup/rimpiazzo.
+Se preferisci non toccare i file esistenti, usa la modalità non-overwrite e poi fai puntare il dataset a deep_features_from_rw.pt.
+4g) # check base
+python utils/check_lrc_dfe.py --val-dir embeddings_ablation_morph_lrc_dfe/val
+python utils/check_lrc_dfe.py --val-dir embeddings_ablation_morph_lrc_dfe/train
+4h) ALLOW_INCOMPLETE=1  PYTORCH_ENABLE_MPS_FALLBACK=1 python ablation_train_lra_gnn_lrc_dfe.py --dataset MORPH --epochs 50 --lr 1e-3 --weight_d
+ecay 0.0
+in alternativa se troppo lento dare 
+LRA_DEVICE=cpu PYTORCH_ENABLE_MPS_FALLBACK=1 python ablation_train_lra_gnn_lrc_dfe.py --dataset MORPH --epochs 1
+4i) LRA_DEVICE=cpu python utils/evaluate_lrc_dfe_ablation.py --dataset MORPH --device cpu
+
+# con controllo coerenza N vs edge_index e stampa dei completi
+python utils/check_lrc_dfe.py --val-dir embeddings_ablation_morph_lrc_dfe/val --check-shape --show-complete
+5) questo script (e i seguenti) valuta il caso in cui no-prlae,no-lrc,no-DFE
+    python utils/evaluate_gcn_ablation.py --dataset MORPH (FGNET, CLAP2016, UTKFACE)
+6) questo script valuta il caso no-prlae,lrc,no-DFE
+    python utils/evaluate_lrc_ablation.py --dataset MORPH
+7) questo script valuta il caso no-prlae,no-lrc, DFE
+    python utils/evaluate_dfe_ablation.py --dataset MORPH
+    ATTENZIONE : I SEGUENTI SCRIPT VERRANNO ESEGUITI SOLO NEL CASO PRLAE
+8) questo script esegue il classificatore prima di eseguire il train di rl per la ablation prlae
+    python models/ablation_train_classifier.py --dataset MORPH --exp_name lrc
+  8a)  python utils/ablation_train_classifier_general.py --dataset UTKFACE --exp_name lrc
+     train classifier più accurato e preciso 
+     e questo script non vale solo per utkface ma anche per gli altri come clap2016
+     PYTHONPATH=. python utils/ablation_train_classifier_general.py --dataset CLAP2016 --exp_name 
+  8b)  python utils/ablation_train_classifier_general.py --dataset MORPH --exp_name lrc
+  è UNO SCRIPT PIù ACCURATO CON CONFUSION MATRIX E STATISTICHE
+9) questo script esegue il train dell rl agent per la ablation prlae
+    python ablation_train_rl_agent.py --dataset MORPH --enable_lrc (ad es.)
+10)  python ablation_evaluate_rl_agent.py --dataset MORPH --enable_lrc
+questo esegue la evaluation per il caso di ablation prlae+lrc (ad es.)
+10a ) python utils/ablation_train_classifier_clap2016_morph_fgnet_utkface.py --dataset MORPH --exp_name lrc 
+ 
+NOTA 
+ablation_evaluate_rl_agent_utkface.py sostistuisce ablation_evaluate_rl_agent.py per utkface (contiene lo scaler)
+ablation_evaluate_rl_agent_utkface.py sostituisce ablation_evaluate_rl_agent.py per utkface (contiene scaler e altro)
+ablation_train_classifier_clap2016_morph_fgnet_utkface.py è il train classifier per ablation di tutti e 4 i dataset
+
+UTILITY
+1) analyze_fgnet_ages.py
+analizza la distribuzione delle età in FG-node_features
+si lancia con python utils/analyze_fgnet_ages.py
+2) python utils/analyze_fg_embeddings_ages.py
+   distribuzione dedotta dagli embeddings confronta il train con le validation per decadi
+3) select_utkface_balanced.py
+seleziona 2000 immagini da utkface da 0-100 anni e bilanciate per decadi e le mette in Train e Validation
+4) count_patches_and_content.py conta le patches di train e validation di utkface e se sono integre
+5) count_embeddings_and_content.py conta gli embeddings per utkface in train e val e loro integrità
+6) regenerate_incomplete_utkface.py rigenera gli embeddings che sono risultati vuoti o mancanti per utkface
+7) check_missing_keypoints_utkface.py fa il chek dei .pts mancanti individua tutte le immagini senza keypoints
+8) list_missing_keypoints_utkface.py   lista delle immagini .jpg.chip che non hanno il file .pts
+9) regenerate_missing_pts_utkface.py si rigenerano i missing keypoints.pts che mancano
+10) extract_landmarks_single.py è una versione parametrizzata di utkface.py 
+11) generate_train_val_folders_clap.py genera i dataset stratificati di train e validation per CLAP2016 con 80 immagini per decade (esclusa l ultima che ne ha 37)
+12) visualize_failed_graph.py visualizza le immagini dei grafi falliti 
+13) python utils/check_embeddings.py verifica che embeddings contenga tutti i file .pt attesi in clap2016 train e val
+14)  python  utils/validate_embeddings_vs_csv.py valida la corrispondenza tra embedding e csv
+15) utils/generate_train_val_folders_clap_not_balanced.py crea i csv completi per train e val e sposta le immagini nella cartella del progetto su train e validation
+16) python utils/verify_pts_images_utkface.py  verifica associazione tra images e file .pts per utkface
+17) python resume_main_morph.py nel caso non vengano generati tutti gli embeddings nel train di morph si generano i rimanenti
+18) check_val_graph_morph.py controlla i grafi generati e se incompleti li completa in embeddings/val di morph 
+19) python utils/count_train_and_val_in_embeddings_folders.py conta quanti file ci sono in train e val di embeddings di MORPH
+20) python evaluate_by_age_group_morph.py valuta le metriche di performance per morph e per fascia di età (dopo il training rl)
+21) python utils/inspect_deep_features.py Verifica del contenuto di un file deep_features.pt
+22) python inspect_embedding_shapes.py controlla le dimensioni dei file fuori le cartelle di embeddings no-lrc no-dfe
+23) cancella i wrong embeddings di 512 da embedding_ablation_no_lrc_no_dfe
+    python utils/clean_wrong_embeddings.py
+24) questo script verifica le dimensioni dei file contenuti nella corrispondente cartella di         
+a) embeddings_ablation_lrc_no_dfe 
+python verify_embeddings_dimensions_lrc_no_dfe.py
+b) python verify_embeddings_dimensions_no_lrc_no_dfe.py
+25) python resume_main_morph.py si lancia (vedi istruzioni dentro) al crash di main_morph per terminare la generazione degli embeddings per train e val di morph
+26) verifica se gli embeddings contengono il campo age 
+python utils/verify_existence_age_field_in_embedddings.py
+27) python check_embeddings_x_ablation.py fa il controllo che gli embeddings per ablation abbiano formato previsto
+---------------------------NEW DOCUMENTATION end
+
