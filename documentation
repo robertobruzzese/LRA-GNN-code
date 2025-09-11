@@ -135,22 +135,39 @@ Run:
 train_rl_agent_no_ablation.py --dataset MORPH 
 This variant removes suspected leakage between the RL agent’s training and evaluation.
 
+12) 
+Run:
 
-8b)  PYTORCH_ENABLE_MPS_FALLBACK=1 python train_rl_agent_no_ablation_x_mae.py --dataset FGNET
-8c) python training/train_prl_morph.py   --train-dir embeddings_morph/train                          --val-dir   embeddings_morph/val   --run-name  MORPH_prl   --epochs 15   --batch-size 64   --max-steps 100   --use-classifier-start   --classifier-ckpt                             checkpoints/MORPH/classifier.pth
-questo train prevede delle modifiche al modello e agli embeddings ed il passaggio ad un modello con parecchi milioni di parametrizzata
-(per ora solo su MORPH)
-9) per la evaluation : PYTORCH_ENABLE_MPS_FALLBACK=1 python evaluate_rl_agent.py --dataset FGNET (oppure MORPH oppure UTKFACE o CLAP2016)
-9a) PYTORCH_ENABLE_MPS_FALLBACK=1 python evaluate_rl_agent_no_ablation_fgnet.py --dataset FGNET
+python train_rl_agent_no_ablation_x_mae.py --dataset MORPH
+This variant runs the RL agent without ablation, with an evaluation/training setup focused on MAE
 
-9b) python evaluate_rl_agent_no_ablation_morph.py \
+13) 
+Run:
+python training/train_prl_morph.py \
+  --train-dir embeddings_morph/train \
+  --val-dir embeddings_morph/val \
+  --run-name MORPH_prl \
+  --epochs 15 \
+  --batch-size 64 \
+  --max-steps 100 \
+  --use-classifier-start \
+  --classifier-ckpt checkpoints/MORPH/classifier.pth
+This training run includes changes to the model and the embeddings, transitioning to a model with many millions of parameters (currently MORPH only)
+
+14)
+Run:
+python evaluate_rl_agent.py --dataset MORPH  # or: --dataset FGNET / UTKFACE / CLAP2016
+
+15)
+Run:
+ python evaluate_rl_agent_no_ablation_morph.py \
   --dataset MORPH \
   --quick-n 200 \
   --top-k 5 \
   --quick-mode stratified \
   --quick-seed 123
-  (utile per scegliere il miglior modello da valutare )
-  oppure 
+  (used to select the best model to evaluate )
+
   python evaluate_rl_agent_no_ablation_morph.py \
   --dataset MORPH \
   --quick-n 200 \
@@ -158,16 +175,24 @@ questo train prevede delle modifiche al modello e agli embeddings ed il passaggi
   --quick-mode stratified \
   --quick-seed 42 \
   --eval-only
-  (per evidenziare il valore del AgeEstimator ad ogni best model)
-  9c) python evaluate_rl_last15.py --dataset FGNET     # oppure MORPH / UTKFACE / CLAP2016
-  1.	prende gli ultimi 15 checkpoint best_agent_*.pth da checkpoints/<DATASET>_clean514/
-	2.	li valuta uno per uno sull’intero validation set e per ognuno stampa MAE, CS@5, ε-error (e decade accuracy se disponibile)
-	3.	sceglie il migliore per MAE, salva un CSV riepilogo, crea BEST_SELECTED.json e copia il best in best_agent_SELECTED.pth
-	4.	confronta il best RL con la baseline del classifier (decade accuracy + età “soft” da midpoint)
-	5.	genera gli artefatti per il best: CSV per-sample, tabella comparativa (CSV+PNG), confusion matrix, classification report e curva di accuracy smussata
-  9d)PYTORCH_ENABLE_MPS_FALLBACK=1 \
-python evaluate_rl_last15_x_mae.py --dataset FGNET --epsilon-eval 0.65
-10) dummy script
+16)
+Run:
+python evaluate_rl_last15.py --dataset MORPH     # oppure FGNET / UTKFACE / CLAP2016
+What it does:
+	1.	Loads the last 15 checkpoints matching best_agent_*.pth from checkpoints/<DATASET>_clean514/.
+	2.	Evaluates each one on the entire validation set, printing MAE, CS@5, ε-error (and decade accuracy if available).
+	3.	Picks the best by MAE, saves a summary CSV, creates BEST_SELECTED.json, and copies the best model to best_agent_SELECTED.pth.
+	4.	Compares the best RL model with the classifier baseline (decade accuracy + “soft” age from midpoint).
+	5.	Generates artifacts for the best model: per-sample CSV, comparative table (CSV + PNG), confusion matrix, classification report, and a smoothed accuracy curve.
+
+17)
+Run:
+
+python evaluate_rl_last15_x_mae.py --dataset MORPH  --epsilon-eval 0.65
+
+This variant evaluates the last 15 RL checkpoints with an MAE-focused setup.
+--epsilon-eval 0.65 sets the ε used at evaluation (e.g., for ε-greedy policy), and the script selects the best model by MAE, saving the usual summary artifacts (CSV, best checkpoint, etc.).
+
 
 SCRIPT PER ABLATION
 
