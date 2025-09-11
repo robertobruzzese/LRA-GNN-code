@@ -1,4 +1,4 @@
---------------------------- Fast Commands DOCUMENTATION
+---------------------------Commands DOCUMENTATION begin
 These are pipeline commands to be given in sequence:
 SCRIPTS FOR NO ABLATION (FULL)
 1)
@@ -327,30 +327,43 @@ UTILITIES
    List of .jpg.chip images that are missing the corresponding .pts file.
 9) python regenerate_missing_pts_utkface.py 
    Regenerate the missing .pts keypoints files.
-10) extract_landmarks_single.py è una versione parametrizzata di utkface.py 
-11) generate_train_val_folders_clap.py genera i dataset stratificati di train e validation per CLAP2016 con 80 immagini per decade (esclusa l ultima che ne ha 37)
-12) visualize_failed_graph.py visualizza le immagini dei grafi falliti 
-13) python utils/check_embeddings.py verifica che embeddings contenga tutti i file .pt attesi in clap2016 train e val
-14) python  utils/validate_embeddings_vs_csv.py valida la corrispondenza tra embedding e csv
-15) utils/generate_train_val_folders_clap_not_balanced.py crea i csv completi per train e val e sposta le immagini nella cartella del progetto su train e validation
-16) python utils/verify_pts_images_utkface.py  verifica associazione tra images e file .pts per utkface
-17) python resume_main_morph.py nel caso non vengano generati tutti gli embeddings nel train di morph si generano i rimanenti
-18) check_val_graph_morph.py controlla i grafi generati e se incompleti li completa in embeddings/val di morph 
-19) python utils/count_train_and_val_in_embeddings_folders.py conta quanti file ci sono in train e val di embeddings di MORPH
-20) python evaluate_by_age_group_morph.py valuta le metriche di performance per morph e per fascia di età (dopo il training rl)
-21) python utils/inspect_deep_features.py Verifica del contenuto di un file deep_features.pt
-22) python inspect_embedding_shapes.py controlla le dimensioni dei file fuori le cartelle di embeddings no-lrc no-dfe
-23) cancella i wrong embeddings di 512 da embedding_ablation_no_lrc_no_dfe
-    python utils/clean_wrong_embeddings.py
-24) questo script verifica le dimensioni dei file contenuti nella corrispondente cartella di         
-a) embeddings_ablation_lrc_no_dfe 
-python verify_embeddings_dimensions_lrc_no_dfe.py
-b) python verify_embeddings_dimensions_no_lrc_no_dfe.py
-25) python resume_main_morph.py 
-	Launch this script (see instructions inside) after a main_morph crash to finish generating the MORPH embeddings for the train and validation sets.
-26) python utils/verify_existence_age_field_in_embedddings.py
-	Check whether the embeddings include the age field.
-27) python check_embeddings_x_ablation.py 
-    Checks that the ablation embeddings have the expected format.
----------------------------NEW DOCUMENTATION end
+10)python extract_landmarks_single.py 
+   It’s a parameterized version of utkface.py.
+11)python generate_train_val_folders_clap.py 
+   Generates stratified training and validation datasets for CLAP2016 with 80 images per decade (except the last decade, which has 37). 
+12)python visualize_failed_graph.py 
+   Displays the images of the failed graphs. 
+13)python utils/check_embeddings.py 
+   Verify that embeddings contains all the expected .pt files for CLAP2016 (train and val).
+14)python  utils/validate_embeddings_vs_csv.py
+   Validate the correspondence between embeddings and the CSV files.
+15)python utils/generate_train_val_folders_clap_not_balanced.py
+   Create the complete CSVs for train and val, and move the images into the project’s train and validation folders.
+16)python utils/verify_pts_images_utkface.py  
+   Verify the association between images and .pts files for UTKFace.
+17)python resume_main_morph.py 
+   If not all embeddings are generated during MORPH training, generate the remaining ones.
+18)python check_val_graph_morph.py 
+   Check the generated graphs and, if any are incomplete, complete them in MORPH’s embeddings/val directory. 
+19)python utils/count_train_and_val_in_embeddings_folders.py
+   Count how many files are in the MORPH embeddings train and val directories. 
+20)python evaluate_by_age_group_morph.py 
+   Evaluate the performance metrics for MORPH and by age group (after RL training).
+21)python utils/inspect_deep_features.py 
+   Verify the contents of a deep_features.pt file.
+22)python inspect_embedding_shapes.py 
+   Check the sizes of files outside the embeddings directories for the no-LRC / no-DFE setup.
+23)python utils/clean_wrong_embeddings.py
+   Delete the incorrect 512-dim embeddings from embedding_ablation_no_lrc_no_dfe.
+24)python verify_embeddings_dimensions_lrc_no_dfe.py
+   This script checks the sizes of the files contained in the corresponding folder: a) embeddings_ablation_lrc_no_dfe
+25)python verify_embeddings_dimensions_no_lrc_no_dfe.py
+   This script checks the sizes of the files contained in the corresponding folder: b) embeddings_ablation_no_lrc_dfe
+26)python resume_main_morph.py 
+   Launch this script (see instructions inside) after a main_morph crash to finish generating the MORPH embeddings for the train and validation sets.
+27)python utils/verify_existence_age_field_in_embedddings.py
+   Check whether the embeddings include the age field.
+28)python check_embeddings_x_ablation.py 
+   Checks that the ablation embeddings have the expected format.
+---------------------------Commands DOCUMENTATION end
 
