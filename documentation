@@ -1,19 +1,68 @@
----------------------------NEW DOCUMENTATION begin
-1)per il preprocessing si lancia python batch_preprocess_faces_fgnet.py oppure batch_preprocess_faces_morph.py oppure batch_preprocess_faces_utkface.py oppure batch_preprocess_faces_clap2016.py e le immagini preprocessate normalizzate saranno messe dentro la cartella image_preprocessed
+--------------------------- Fast Commands DOCUMENTATION
+1)
+For preprocessing, run :
 
-2) si lancia python datasets/morph.py oppure datasets/fgnet.py oppure datasets/utkface.py oppure datasets/clap2016.py  che è lo script che genera i landmark completi e ridotti a partire dalle immagini preprocessate! cosa fa ? Per ogni immagine in images_preprocessed, estrae:
+python batch_preprocess_faces_fgnet.py 
+python batch_preprocess_faces_morph.py 
+python batch_preprocess_faces_utkface.py
+python batch_preprocess_faces_clap2016.py 
 
-I 68 landmark facciali completi
-Un sottoinsieme ridotto di landmark chiave (es. occhi, naso, bocca)
-E salva due file .pts per ciascuna immagine:
-In points/ → 68 landmark
-In points_reduced/ → landmark selezionati per analisi (es. aging)
-3) si lancia python datasets/draw_landmarks_morph.py o datasets/draw_landmarks_fgnet.py o draw_landmarks_utkface.py  o datasets/draw_landmarks_clap2016.py per visualizzare i landmark
-questo script ha come output images/Train/landmarked/	📸 Immagini con 68 landmark (rossi)	Se esiste points/<nome>.pts
-images/Train/landmarked_reduced/	📸 Immagini con landmark ridotti (blu)	Se esiste points_reduced/<nome>.pts
+and the normalized preprocessed images will be saved in the image_preprocessed folder.
 
-4) python utils/segment_patches_morph.py o utils/segment_patches_fgnet.py 🔍 o  segment_patches_utkface.py o utils/segment_patches_clap2016.py Questo script ha lo scopo di analizzare immagini faciali preprocessate, associare i keypoint facciali a delle patch regolari 6×6 sovrapposte all’immagine, e salvare i risultati sia come CSV che come immagine visuale con overlay delle patch e landmark. dentro la cartella Train/images_segmented
-esso carica  i keypoint (landmark ridotti) da points_dir = "datasets/data/MORPH/points_reduced" o points_dir = "datasets/data/FGNET/points_reduced" etc
+2)
+
+Run :
+
+python datasets/morph.py 
+python datasets/fgnet.py
+python datasets/utkface.py
+python datasets/clap2016.py
+
+These scripts generate full and reduced facial landmarks from the preprocessed images.
+
+What they do: for each image in images_preprocessed, they:
+  • extract the 68 full facial landmarks;
+  • extract a reduced subset of key landmarks (e.g., eyes, nose, mouth);
+  • save two .pts files per image:
+  • points/ → 68 landmarks
+  • points_reduced/ → selected landmarks for analysis (e.g., aging).
+
+3)
+Run :
+
+python datasets/draw_landmarks_morph.py 
+python datasets/draw_landmarks_fgnet.py
+python datasets/draw_landmarks_utkface.py
+python datasets/draw_landmarks_clap2016.py
+
+This way you can  visualize the landmarks.
+
+Output folders:
+  • images/Train/landmarked/ — 📸 images overlaid with the 68 facial landmarks (red), if points/<name>.pts exists.
+  • images/Train/landmarked_reduced/ — 📸 images overlaid with the reduced landmark set (blue), if points_reduced/<name>.pts exists.
+
+
+4) 
+
+Run:
+python utils/segment_patches_morph.py 
+python utils/segment_patches_fgnet.py
+python utils/segment_patches_utkface.py
+python utils/segment_patches_clap2016.py
+
+What it does:
+  • Analyzes preprocessed face images.
+  • Assigns facial keypoints to a 6×6 grid of regular, overlapping patches.
+  • Saves the results both as a CSV and as a visual image with patches and landmarks overlaid, under Train/images_segmented/.
+
+Inputs:
+Loads reduced landmarks from points_dir, e.g.:
+  • MORPH → datasets/data/MORPH/points_reduced
+  • FGNET → datasets/data/FGNET/points_reduced
+  • UTKFace → datasets/data/UTKFace/points_reduced
+  • CLAP2016 → datasets/data/CLAP2016/points_reduced
+
+
 5) dopo di che si lancia python main_morph.py oppure main_fgnet.py oppure main_utkface.py oppure python main_clap2016.py che chiamano la versione  graph_constructor_morph.py oppure graph_constructor_fgnet.py oppure graph_constructor_utkface.py o graph_constructor_clap2016.py per creare il grafo per ogni immagine e fa queste azioni 
 Step	Cosa fa	Script  
 1️⃣	Carica immagine + patch CSV	image_path, csv_path	✅
