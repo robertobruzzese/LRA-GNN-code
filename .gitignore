@@ -1,0 +1,139 @@
+# Sistema
+.DS_Store
+
+# Ambiente virtuale
+venv/
+.env/
+
+# Cache Python
+__pycache__/
+*.py[cod]
+
+# Notebook
+*.ipynb_checkpoints
+# Esclude tutti i file .jpg, .jpeg, .png
+*.jpg
+*.jpeg
+*.png
+
+# Esclude tutti i file .csv
+*.csv
+
+# Esclude tutti i file .pts
+*.pts
+
+# (Opzionale) Esclude directory di output comuni
+__pycache__/
+*.pt
+*.npy
+outputs/
+checkpoints/
+embeddings/
+
+morph_log.txt
+*.pt
+*.log
+
+# Modelli e checkpoint
+*.pt
+*.pth
+*.ckpt
+*.pts
+datasets/data/MORPH/patches/
+datasets/data/MORPH/images/Train/landmarked_reduced/*.JPG
+datasets/data/MORPH/images/Train/landmarked_reduced/*.jpg
+datasets/data/MORPH/images/Train/landmarked_reduced/*.JPG
+datasets/data/MORPH/images/Train/landmarked/*.JPG
+datasets/data/MORPH/images/Train/landmarked/*.jpg
+datasets/data/MORPH/images/Train/images_segmented/*.jpg
+datasets/data/MORPH/images/Train/images_segmented/*.JPG
+datasets/data/MORPH/images/Train/images_preprocessed/*.JPG
+datasets/data/MORPH/images/Train/images_preprocessed/*.jpg
+datasets/data/MORPH/images/Train/*.jpg
+datasets/data/MORPH/images/Train/*.JPG
+# Ignora file CSV e immagini
+*.csv
+*.JPG
+*.jpg
+# Ma NON ignorare questo file specifico
+!immagini/document_image.png
+
+checkpoints/
+
+# Output files
+output/
+*.pdf
+*.key
+*.pages
+
+# Dataset specific
+datasets/data/FGNET/images/Train/
+
+# Dataset locali
+embeddings/
+outputs/
+
+# VS Code
+.vscode/
+morph_log.txt
+
+datasets/data/
+*.dat
+
+# ignore heavy stuff
+slides/
+datasets/
+*.dat
+*.pth
+*.pt
+*.zip
+*.tar
+*.gz
+*.npz
+*.npy
+
+# ignore heavy & local stuff
+slides/
+datasets/
+*.dat
+*.pth
+*.pt
+*.zip
+*.tar
+*.gz
+*.npz
+*.npy
+all-objects.txt
+big-shas.txt
+big_over_100b*.txt
+
+# ignore heavy & local
+slides/
+datasets/
+*.dat
+*.pth
+*.pt
+*.zip
+*.tar
+*.gz
+*.npz
+*.npy
+*.mp4
+*.mov
+all-objects.txt
+big-*.txt
+# heavy / local
+slides/
+datasets/
+*.dat
+*.pth
+*.pt
+*.zip
+*.tar
+*.gz
+*.npz
+*.npy
+*.mp4
+*.mov
+all-objects.txt
+big-*.txt
