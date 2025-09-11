@@ -84,6 +84,35 @@ deep_features.pt	Feature finali da ResGCN
 ✔ Sono salvati in node_features.pt nella cartella dell’immagine
 Sono nella cartella embeddings o embeddings_FGNET o embeddings_utkface o embeddings_clap2016
 
+After that, run:
+python main_morph.py
+python main_fgnet.py
+python main_utkface.py
+python main_clap2016.py
+
+These call graph_constructor_morph.py / graph_constructor_fgnet.py / graph_constructor_utkface.py / graph_constructor_clap2016.py to build the graph for each image and perform the following Stesp:
+
+1️⃣ Load image + patch CSV — uses image_path, csv_path.
+2️⃣ Build base graph + Random Walk refinement — construct_initial_graph.
+3️⃣ Save graph_initial.pt, graph_rw.pt.
+4️⃣ Apply Latent Relation Capturer (LRC) — LatentRelationCapturer.
+5️⃣ Save LRC graphs — graph_lrc_*.pt (8 files).
+6️⃣ Extract deep features with ResGCN — extract_deep_features.
+7️⃣ Save deep_features.pt.
+
+Outputs (per image)
+	•	node_features.pt — 512-D visual embedding for each patch (node).
+	•	edge_features.pt — (optional) mean embedding for connected pairs.
+	•	graph_initial.pt — initial similarity-based graph.
+	•	graph_rw.pt — graph after Random Walk.
+	•	graph_lrc_*.pt — LRC-connected graphs via multi-head attention (8 files).
+	•	deep_features.pt — final features from ResGCN.
+
+✅ Conclusion
+	•	✔ Yes, the system also generates patch/node embeddings.
+	•	✔ They’re saved as node_features.pt inside the image’s folder.
+	•	✔ Located under embeddings_morph, embeddings_FGNET, embeddings_utkface, or embeddings_clap2016.
+
 5a) PYTHONPATH=. python utils/check_embeddings_full.py   --root embeddings_morph   --dataset MORPH   --check-shape --split both
 fa il sanity check delle cartelle di mebeddings
 oppure
