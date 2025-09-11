@@ -109,12 +109,11 @@ python utils/check_embeddings_full.py \
   --check-shape \
   --min-lrc 8
 
-6) adesso va lanciato python train_lra_gnn.py  --dataset MORPH oppure FGNET oppure UTKFACE oppure CLAP2016
-così : python train_lra_gnn.py --dataset FGNET
-il comando da dare su mac con gpu è questo:
-PYTORCH_ENABLE_MPS_FALLBACK=1 python train_lra_gnn.py --dataset 
- FGNET --no_force_ablation (oppure MORPH oppure UTKFACE oppure CLAP2016) --no_save_embeddings
- (no_save_embeddings deve essere specificata per salvare gli embeddings per val con lo script successivo. altrimenti succede una data leakage??non vero)
+7) Now run the trainer:
+	•	Generic:
+python train_lra_gnn.py --dataset MORPH   # or FGNET, UTKFACE, CLAP2016
+	--no_force_ablation
+
  6-bis) PYTORCH_ENABLE_MPS_FALLBACK=1 python train_lra_gnn.py \
   --dataset MORPH --no_force_ablation --save_flat
   cè la opzione per salvare flat 
