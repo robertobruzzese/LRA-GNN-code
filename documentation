@@ -305,20 +305,20 @@ python utils/evaluate_lrc_dfe_ablation.py --dataset MORPH (--device cpu)
 	python ablation_evaluate_rl_agent.py --dataset MORPH --enable_lrc (FGNET, CLAP2016, UTKFACE)
 
  
-NOTA 
+NOTE 
 	ablation_evaluate_rl_agent_utkface.py replaces ablation_evaluate_rl_agent.py for UTKFace (includes the scaler).
 	ablation_evaluate_rl_agent_utkface.py replaces ablation_evaluate_rl_agent.py for UTKFace (includes the scaler and additional components).
 	ablation_train_classifier_clap2016_morph_fgnet_utkface.py is the classifier training script for the ablation on all four datasets (CLAP2016, MORPH, FGNET, UTKFace).
 
-UTILITY
-1) analyze_fgnet_ages.py
-analizza la distribuzione delle età in FG-node_features
-si lancia con python utils/analyze_fgnet_ages.py
+UTILITIES
+1) python utils/analyze_fgnet_ages.py
+   Analyze the age distribution in FG-node_features.
 2) python utils/analyze_fg_embeddings_ages.py
    distribuzione dedotta dagli embeddings confronta il train con le validation per decadi
-3) select_utkface_balanced.py
-seleziona 2000 immagini da utkface da 0-100 anni e bilanciate per decadi e le mette in Train e Validation
-4) count_patches_and_content.py conta le patches di train e validation di utkface e se sono integre
+3) python select_utkface_balanced.py
+   Distribution inferred from embeddings — compare the training and validation sets by decade.
+4) python count_patches_and_content.py 
+   It counts the UTKFace training and validation patches and checks their integrity.
 5) count_embeddings_and_content.py conta gli embeddings per utkface in train e val e loro integrità
 6) regenerate_incomplete_utkface.py rigenera gli embeddings che sono risultati vuoti o mancanti per utkface
 7) check_missing_keypoints_utkface.py fa il chek dei .pts mancanti individua tutte le immagini senza keypoints
@@ -328,7 +328,7 @@ seleziona 2000 immagini da utkface da 0-100 anni e bilanciate per decadi e le me
 11) generate_train_val_folders_clap.py genera i dataset stratificati di train e validation per CLAP2016 con 80 immagini per decade (esclusa l ultima che ne ha 37)
 12) visualize_failed_graph.py visualizza le immagini dei grafi falliti 
 13) python utils/check_embeddings.py verifica che embeddings contenga tutti i file .pt attesi in clap2016 train e val
-14)  python  utils/validate_embeddings_vs_csv.py valida la corrispondenza tra embedding e csv
+14) python  utils/validate_embeddings_vs_csv.py valida la corrispondenza tra embedding e csv
 15) utils/generate_train_val_folders_clap_not_balanced.py crea i csv completi per train e val e sposta le immagini nella cartella del progetto su train e validation
 16) python utils/verify_pts_images_utkface.py  verifica associazione tra images e file .pts per utkface
 17) python resume_main_morph.py nel caso non vengano generati tutti gli embeddings nel train di morph si generano i rimanenti
