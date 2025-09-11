@@ -110,27 +110,21 @@ python utils/check_embeddings_full.py \
   --min-lrc 8
 
 7) Now run the trainer:
-	•	Generic:
+	(Generic:)
 python train_lra_gnn.py --dataset MORPH   # or FGNET, UTKFACE, CLAP2016
 	--no_force_ablation
 
- 6-bis) PYTORCH_ENABLE_MPS_FALLBACK=1 python train_lra_gnn.py \
-  --dataset MORPH --no_force_ablation --save_flat
-  cè la opzione per salvare flat 
- 6-tris) python train_lra_gnn.py --dataset FGNET --no_force_ablation (Comando “standard” (rigenera graph features nelle cartelle dei sample))
- python train_lra_gnn.py --dataset FGNET --no_force_ablation --save_flat (Se vuoi anche i flat 512D (un file <ID>.pt per immagine nello split))
- ----NON ESEGUIRE 6a) nel caso no ablation
- 6a) python generate_val_embeddings.py 
-    PYTHONPATH=. python utils/generate_val_embeddings.py \
-  --dataset MORPH \
-  --checkpoint checkpoints_ablation/morph/lrc_no_dfe/best_lra_gnn_morph.pth \
-  --embeddings_dir embeddings_ablation_morph_lrc_no_dfe
+8) 
+python train_lra_gnn.py --dataset MORPH --no_force_ablation --save_flat
+  (the option -save_flat is used to save flat embeddings 512D dimension)  
 
-    serve per evitare il data leakage con il train precedente nel salvataggio degli embedddings per val
-    Questo è valido per MORPH. Va adattato per gli altri dataset.
- ----NON ESEGUIRE 6a) nel caso no ablation
-7) viene poi lanciato il classificatore python models/train_classifier.py --dataset FGNET (o MORPH o UTKFACE o CLAPS2016)
-o meglio   python models/train_classifier_new.py --dataset FGNET
+9) 
+Then launch the classifier:
+	(Standard:)
+python models/train_classifier.py --dataset MORPH  (or FGNET  or UTKFACE or CLAPS2016)
+	(new version:)
+python models/train_classifier_new.py --dataset MORPH (or FGNET  or UTKFACE or CLAPS2016)
+
 8) infine viene lanciato PYTORCH_ENABLE_MPS_FALLBACK=1 python train_rl_agent.py --dataset FGNET (oppure MORPH oppure UTKFACE oppure CLAP2016)
  8a) PYTORCH_ENABLE_MPS_FALLBACK=1  train_rl_agent_no_ablation.py --dataset UTKFACE
  questa versione elimina presunti leakages del training rl agent e delle valuate e in particolare modificato al momento per UTKFACE utilizzando
