@@ -266,7 +266,7 @@ python utils/rebuild_dfe_features_from_rw.py \
   --overwrite
   --device auto
 
-NOTE: You don’t need to manually delete the old deep_features.pt files—the script handles backup/replacement.
+NOTE: You don’t need to manually delete the old deep_features.pt files , the script handles backup/replacement.
 If you prefer not to touch existing files, use the non-overwrite mode and then point the dataset to deep_features_from_rw.pt.
 
 11) check base
@@ -278,38 +278,37 @@ python ablation_train_lra_gnn_lrc_dfe.py --dataset MORPH --epochs 50 --lr 1e-3 -
 
 alternatively 
 
-python ablation_train_lra_gnn_lrc_dfe.py --dataset MORPH --epochs 1
+python ablation_train_lra_gnn_lrc_dfe.py --dataset MORPH --epochs 50
 
 13) 
 
 python utils/evaluate_lrc_dfe_ablation.py --dataset MORPH (--device cpu)
 
 
-5) questo script (e i seguenti) valuta il caso in cui no-prlae,no-lrc,no-dfe
+14) This script (and the next ones) evaluates the configuration with no PRLAE, no LRC, and no DFE — i.e., the GCN-only baseline.
     python utils/evaluate_gcn_ablation.py --dataset MORPH (FGNET, CLAP2016, UTKFACE)
-6) questo script valuta il caso no-prlae,lrc,no-DFE
-    python utils/evaluate_lrc_ablation.py --dataset MORPH
-7) questo script valuta il caso no-prlae,no-lrc, DFE
+15) This script evaluates the configuration no PRLAE, LRC enabled, no DFE — i.e., GCN + LRC only:
+    python utils/evaluate_lrc_ablation.py --dataset MORPH (FGNET, CLAP2016, UTKFACE)
+16) This script evaluates the configuration no PRLAE, no LRC, DFE enabled — i.e., GCN + DFE only:
     python utils/evaluate_dfe_ablation.py --dataset MORPH
-    ATTENZIONE : I SEGUENTI SCRIPT VERRANNO ESEGUITI SOLO NEL CASO PRLAE
-8) questo script esegue il classificatore prima di eseguire il train di rl per la ablation prlae
-    python models/ablation_train_classifier.py --dataset MORPH --exp_name lrc
-  8a)  python utils/ablation_train_classifier_general.py --dataset UTKFACE --exp_name lrc
-     train classifier più accurato e preciso 
-     e questo script non vale solo per utkface ma anche per gli altri come clap2016
-     PYTHONPATH=. python utils/ablation_train_classifier_general.py --dataset CLAP2016 --exp_name 
-  8b)  python utils/ablation_train_classifier_general.py --dataset MORPH --exp_name lrc
-  è UNO SCRIPT PIù ACCURATO CON CONFUSION MATRIX E STATISTICHE
-9) questo script esegue il train dell rl agent per la ablation prlae
-    python ablation_train_rl_agent.py --dataset MORPH --enable_lrc (ad es.)
-10)  python ablation_evaluate_rl_agent.py --dataset MORPH --enable_lrc
-questo esegue la evaluation per il caso di ablation prlae+lrc (ad es.)
-10a ) python utils/ablation_train_classifier_clap2016_morph_fgnet_utkface.py --dataset MORPH --exp_name lrc 
+
+    NOTE — WARNING: The following scripts will be executed only when PRLAE is enabled.
+
+17) This script runs the classifier first, then starts RL training for the PRLAE ablation.
+    python models/ablation_train_classifier.py --dataset MORPH --exp_name lrc (FGNET, CLAP2016, UTKFACE)
+18) Train a more accurate and precise classifier (with Confusion matrix and statistics)
+	python utils/ablation_train_classifier_general.py --dataset MORPH --exp_name lrc (FGNET, CLAP2016, UTKFACE)
+
+19) This script trains the RL agent for the PRLAE ablation.
+    python ablation_train_rl_agent.py --dataset MORPH --enable_lrc (FGNET, CLAP2016, UTKFACE)
+20) This script runs the evaluation for the PRLAE+LRC ablation case (e.g.).
+	python ablation_evaluate_rl_agent.py --dataset MORPH --enable_lrc (FGNET, CLAP2016, UTKFACE)
+
  
 NOTA 
-ablation_evaluate_rl_agent_utkface.py sostistuisce ablation_evaluate_rl_agent.py per utkface (contiene lo scaler)
-ablation_evaluate_rl_agent_utkface.py sostituisce ablation_evaluate_rl_agent.py per utkface (contiene scaler e altro)
-ablation_train_classifier_clap2016_morph_fgnet_utkface.py è il train classifier per ablation di tutti e 4 i dataset
+	ablation_evaluate_rl_agent_utkface.py replaces ablation_evaluate_rl_agent.py for UTKFace (includes the scaler).
+	ablation_evaluate_rl_agent_utkface.py replaces ablation_evaluate_rl_agent.py for UTKFace (includes the scaler and additional components).
+	ablation_train_classifier_clap2016_morph_fgnet_utkface.py is the classifier training script for the ablation on all four datasets (CLAP2016, MORPH, FGNET, UTKFace).
 
 UTILITY
 1) analyze_fgnet_ages.py
