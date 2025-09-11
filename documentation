@@ -1,6 +1,6 @@
 --------------------------- Fast Commands DOCUMENTATION
 These are pipeline commands to be given in sequence:
-SCRPTS FOR NO ABLATION (FULL)
+SCRIPTS FOR NO ABLATION (FULL)
 1)
 For preprocessing, run :
 
@@ -319,11 +319,14 @@ UTILITIES
    Distribution inferred from embeddings — compare the training and validation sets by decade.
 4) python count_patches_and_content.py 
    It counts the UTKFace training and validation patches and checks their integrity.
-5) count_embeddings_and_content.py conta gli embeddings per utkface in train e val e loro integrità
-6) regenerate_incomplete_utkface.py rigenera gli embeddings che sono risultati vuoti o mancanti per utkface
-7) check_missing_keypoints_utkface.py fa il chek dei .pts mancanti individua tutte le immagini senza keypoints
-8) list_missing_keypoints_utkface.py   lista delle immagini .jpg.chip che non hanno il file .pts
-9) regenerate_missing_pts_utkface.py si rigenerano i missing keypoints.pts che mancano
+5) python count_embeddings_and_content.py 
+   Count the embeddings for UTKFace in the train and validation sets and check their integrity. 
+7) python check_missing_keypoints_utkface.py 
+   Checks for missing .pts files and identifies all images without keypoints.
+8) python list_missing_keypoints_utkface.py  
+   List of .jpg.chip images that are missing the corresponding .pts file.
+9) python regenerate_missing_pts_utkface.py 
+   Regenerate the missing .pts keypoints files.
 10) extract_landmarks_single.py è una versione parametrizzata di utkface.py 
 11) generate_train_val_folders_clap.py genera i dataset stratificati di train e validation per CLAP2016 con 80 immagini per decade (esclusa l ultima che ne ha 37)
 12) visualize_failed_graph.py visualizza le immagini dei grafi falliti 
@@ -343,9 +346,11 @@ UTILITIES
 a) embeddings_ablation_lrc_no_dfe 
 python verify_embeddings_dimensions_lrc_no_dfe.py
 b) python verify_embeddings_dimensions_no_lrc_no_dfe.py
-25) python resume_main_morph.py si lancia (vedi istruzioni dentro) al crash di main_morph per terminare la generazione degli embeddings per train e val di morph
-26) verifica se gli embeddings contengono il campo age 
-python utils/verify_existence_age_field_in_embedddings.py
-27) python check_embeddings_x_ablation.py fa il controllo che gli embeddings per ablation abbiano formato previsto
+25) python resume_main_morph.py 
+	Launch this script (see instructions inside) after a main_morph crash to finish generating the MORPH embeddings for the train and validation sets.
+26) python utils/verify_existence_age_field_in_embedddings.py
+	Check whether the embeddings include the age field.
+27) python check_embeddings_x_ablation.py 
+    Checks that the ablation embeddings have the expected format.
 ---------------------------NEW DOCUMENTATION end
 
