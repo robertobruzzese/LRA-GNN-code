@@ -66,6 +66,7 @@ Loads reduced landmarks from points_dir, e.g.:
 
 5) 
 After that, run:
+
 python main_morph.py
 python main_fgnet.py
 python main_utkface.py
@@ -94,10 +95,14 @@ Outputs (per image)
 	•	✔ They’re saved as node_features.pt inside the image’s folder.
 	•	✔ Located under embeddings_morph, embeddings_FGNET, embeddings_utkface, or embeddings_clap2016.
 
-5a) PYTHONPATH=. python utils/check_embeddings_full.py   --root embeddings_morph   --dataset MORPH   --check-shape --split both
-fa il sanity check delle cartelle di mebeddings
-oppure
-PYTHONPATH=. python utils/check_embeddings_full.py \
+6) This performs an (optional)  sanity check of the embeddings folders:
+(is reported only for MORPH dataset)
+
+python utils/check_embeddings_full.py   --root embeddings_morph   --dataset MORPH   --check-shape --split both
+
+alternatively 
+
+python utils/check_embeddings_full.py \
   --root embeddings_morph \
   --dataset MORPH \
   --split both \
