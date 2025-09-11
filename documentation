@@ -251,31 +251,41 @@ Note: Some of the following scripts can be obsolete.
   --train_root embeddings_ablation_morph_no_lrc_dfe/train \
   --dataset MORPH \
   --overwrite
-4e) questo script fa un 	Test non distruttivo (scrive deep_features_from_rw.pt): 
+9) 
+This script performs a non-destructive test (it writes deep_features_from_rw.pt):
+
 python utils/rebuild_dfe_features_from_rw.py \
   --root embeddings_ablation_morph_lrc_dfe \
   --num-layers 4 \
   --only-missing
-4f) questo script Rigenerazione definitiva (sovrascrive deep_features.pt, fa backup automatico delle versioni a 8 head):
+
+10) This script — Final regeneration (overwrites deep_features.pt, automatically backs up the 8-head versions):
 python utils/rebuild_dfe_features_from_rw.py \
   --root embeddings_ablation_morph_lrc_dfe \
   --num-layers 4 \
   --overwrite
   --device auto
-  NOTA Non devi cancellare a mano i vecchi deep_features.pt: lo script gestisce backup/rimpiazzo.
-Se preferisci non toccare i file esistenti, usa la modalità non-overwrite e poi fai puntare il dataset a deep_features_from_rw.pt.
-4g) # check base
+
+NOTE: You don’t need to manually delete the old deep_features.pt files—the script handles backup/replacement.
+If you prefer not to touch existing files, use the non-overwrite mode and then point the dataset to deep_features_from_rw.pt.
+
+11) check base
 python utils/check_lrc_dfe.py --val-dir embeddings_ablation_morph_lrc_dfe/val
 python utils/check_lrc_dfe.py --val-dir embeddings_ablation_morph_lrc_dfe/train
-4h) ALLOW_INCOMPLETE=1  PYTORCH_ENABLE_MPS_FALLBACK=1 python ablation_train_lra_gnn_lrc_dfe.py --dataset MORPH --epochs 50 --lr 1e-3 --weight_d
-ecay 0.0
-in alternativa se troppo lento dare 
-LRA_DEVICE=cpu PYTORCH_ENABLE_MPS_FALLBACK=1 python ablation_train_lra_gnn_lrc_dfe.py --dataset MORPH --epochs 1
-4i) LRA_DEVICE=cpu python utils/evaluate_lrc_dfe_ablation.py --dataset MORPH --device cpu
 
-# con controllo coerenza N vs edge_index e stampa dei completi
-python utils/check_lrc_dfe.py --val-dir embeddings_ablation_morph_lrc_dfe/val --check-shape --show-complete
-5) questo script (e i seguenti) valuta il caso in cui no-prlae,no-lrc,no-DFE
+12) 
+python ablation_train_lra_gnn_lrc_dfe.py --dataset MORPH --epochs 50 --lr 1e-3 --weight_decay 0.0
+
+alternatively 
+
+python ablation_train_lra_gnn_lrc_dfe.py --dataset MORPH --epochs 1
+
+13) 
+
+python utils/evaluate_lrc_dfe_ablation.py --dataset MORPH (--device cpu)
+
+
+5) questo script (e i seguenti) valuta il caso in cui no-prlae,no-lrc,no-dfe
     python utils/evaluate_gcn_ablation.py --dataset MORPH (FGNET, CLAP2016, UTKFACE)
 6) questo script valuta il caso no-prlae,lrc,no-DFE
     python utils/evaluate_lrc_ablation.py --dataset MORPH
