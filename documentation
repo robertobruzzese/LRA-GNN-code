@@ -125,10 +125,17 @@ python models/train_classifier.py --dataset MORPH  (or FGNET  or UTKFACE or CLAP
 	(new version:)
 python models/train_classifier_new.py --dataset MORPH (or FGNET  or UTKFACE or CLAPS2016)
 
-8) infine viene lanciato PYTORCH_ENABLE_MPS_FALLBACK=1 python train_rl_agent.py --dataset FGNET (oppure MORPH oppure UTKFACE oppure CLAP2016)
- 8a) PYTORCH_ENABLE_MPS_FALLBACK=1  train_rl_agent_no_ablation.py --dataset UTKFACE
- questa versione elimina presunti leakages del training rl agent e delle valuate e in particolare modificato al momento per UTKFACE utilizzando
-train_rl_flat.py e progressive_rl_no_ablation.py e evaluate_rl_agent_utkface.py 
+10) 
+Finally, run the RL agent:
+
+python train_rl_agent.py --dataset MORPH  (or FGNET or UTKFACE or CLAP2016)
+
+11)
+Run:
+train_rl_agent_no_ablation.py --dataset MORPH 
+This variant removes suspected leakage between the RL agent’s training and evaluation.
+
+
 8b)  PYTORCH_ENABLE_MPS_FALLBACK=1 python train_rl_agent_no_ablation_x_mae.py --dataset FGNET
 8c) python training/train_prl_morph.py   --train-dir embeddings_morph/train                          --val-dir   embeddings_morph/val   --run-name  MORPH_prl   --epochs 15   --batch-size 64   --max-steps 100   --use-classifier-start   --classifier-ckpt                             checkpoints/MORPH/classifier.pth
 questo train prevede delle modifiche al modello e agli embeddings ed il passaggio ad un modello con parecchi milioni di parametrizzata
