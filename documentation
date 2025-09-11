@@ -64,26 +64,7 @@ Loads reduced landmarks from points_dir, e.g.:
   • CLAP2016 → datasets/data/CLAP2016/points_reduced
 
 
-5) dopo di che si lancia python main_morph.py oppure main_fgnet.py oppure main_utkface.py oppure python main_clap2016.py che chiamano la versione  graph_constructor_morph.py oppure graph_constructor_fgnet.py oppure graph_constructor_utkface.py o graph_constructor_clap2016.py per creare il grafo per ogni immagine e fa queste azioni 
-Step	Cosa fa	Script  
-1️⃣	Carica immagine + patch CSV	image_path, csv_path	✅
-2️⃣	Costruisce grafo base + RW	construct_initial_graph	✅
-3️⃣	Salva graph_initial.pt, graph_rw.pt		✅
-4️⃣	Applica Latent Relation Capturer (LRC)	LatentRelationCapturer	✅
-5️⃣	Salva 12 grafi LRC (graph_lrc_*.pt)		✅ (ATTENZIONE ridotti ad 8 grafi per utkface)
-6️⃣	Estrae deep feature via ResGCN	extract_deep_features	✅
-7️⃣	Salva deep_features.pt
-node_features.pt	Embedding visivo 512D per ogni patch (nodo)
-edge_features.pt	(Opzionale) Media degli embedding tra coppie connesse
-graph_initial.pt	Grafo iniziale basato su similarità
-graph_rw.pt	Grafo dopo Random Walk
-graph_lrc_*.pt (12 file)	ATTENZIONE Ridotti ad 8 grafi per utkface e clap2016 . Grafi connessi via multi-head attention
-deep_features.pt	Feature finali da ResGCN
-✅ Conclusione
-✔ Sì, il sistema genera anche gli embedding delle patch (nodi)
-✔ Sono salvati in node_features.pt nella cartella dell’immagine
-Sono nella cartella embeddings o embeddings_FGNET o embeddings_utkface o embeddings_clap2016
-
+5) 
 After that, run:
 python main_morph.py
 python main_fgnet.py
